@@ -2,6 +2,7 @@ const express = require("express");
 const fileUpload = require('express-fileupload');
 const app = express();
 const path = require("path");
+const fs = require("fs");
 const port = 369;
 
 app.use(fileUpload());
@@ -27,14 +28,39 @@ app.post("/upload", (req, res) => {
 
   // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
   sampleFile = req.files.image;
-  uploadPath = `${__dirname}/../frontend/public/img/uploaded.jpg`
+  const newData = {
+    "id": 0,
+     "url": `/${req.body.title}.jpg`,
+     "title": req.body.title,
+     "uploadDate": "2022. 11. 12.",
+     "phName": req.body.phname 
+  }
+  uploadPath = `${__dirname}/../frontend/public/img/${req.body.title}.jpg`
 
   // Use the mv() method to place the file somewhere on your server
   sampleFile.mv(uploadPath, function(err) {
     if (err)
       return res.status(500).send(err);    
 
-    res.json('File uploaded!');
+    fs.readFile(`${__dirname}/data/images.json`, (err, data) => {
+      if(err)
+        return res.status(500).send(err);
+
+        let imagesData = JSON.parse(data) 
+        newData.id = imagesData[imagesData.length-1].id +1
+
+        imagesData.push(newData)
+
+        fs.writeFile(`${__dirname}/data/images.json`, JSON.stringify(imagesData, null, 2), (err) => {
+          if (err) res.status(500).send(err);
+          
+          console.log('The file has been saved!');
+          res.json(newData);
+          
+        })
+    })
+
+   
   });
 })
 

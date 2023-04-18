@@ -42,6 +42,8 @@ fetch(`/images`)
     const formData = new FormData() 
 
     formData.append("image", document.querySelector(`input[type="file"]`).files[0])
+    formData.append("title", document.querySelector(`input[name="title"]`).value)
+    formData.append("phname", document.querySelector(`input[name="phname"]`).value)
     
     fetch("/upload", {
       method:"POST",
@@ -51,6 +53,13 @@ fetch(`/images`)
       return res.json()
     })
 
-    .then(resData => { console.log(resData)})
+    .then(resData => { 
+      console.log(resData)
+      swiperWrapElement.insertAdjacentHTML(
+        "beforeend",
+        imagesComponent(resData.title, resData.url)
+      );
+    })
+
 
   })
